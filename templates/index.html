@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Fuel Consumption Prediction</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+      }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px 30px;
+        font-size: 2rem;
+        text-align: left;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      }
+
+      .header_text {
+        font-size: 1.8rem;
+        text-align: center;
+        font-weight: 700;
+        color: #ecf0f1;
+      }
+
+      .content {
+        margin-top: 100px;
+        padding: 20px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .text {
+        font-size: 1.2rem;
+        color: #555;
+        margin-bottom: 20px;
+      }
+
+      .result {
+        color: #e74c3c;
+        margin-top: 20px;
+        font-size: 1.5rem;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+      }
+
+      input[type="number"]:focus,
+      select:focus {
+        border-color: #2c3e50;
+        outline: none;
+      }
+
+      input[type="submit"] {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: background-color 0.3s;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #34495e;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 15px 15px;
+          font-size: 1.5rem;
+        }
+
+        .content {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header_text">Car Fuel Consumption Prediction</div>
+    </header>
+
+    <main class="content">
+      <p class="text">
+        Fill in the details below to predict the consumption depending on the
+        gas type:
+      </p>
+
+      <div class="result">{{ prediction_text }}</div>
+
+      <form action="{{ url_for('predict') }}" method="POST">
+        <div class="form-group">
+          <label for="distance">Distance (km)</label>
+          <input
+            type="number"
+            step="any"
+            id="distance"
+            name="distance"
+            placeholder="Enter distance"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="speed">Speed (km/h)</label>
+          <input
+            type="number"
+            id="speed"
+            name="speed"
+            placeholder="Enter speed"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="temp_inside">Temp Inside (°C)</label>
+          <input
+            type="number"
+            id="temp_inside"
+            name="temp_inside"
+            placeholder="Enter inside temperature"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="temp_outside">Temp Outside (°C)</label>
+          <input
+            type="number"
+            id="temp_outside"
+            name="temp_outside"
+            placeholder="Enter outside temperature"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="AC">AC (0: Off, 1: On)</label>
+          <select id="AC" name="AC" required>
+            <option value="" disabled selected>Select AC</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="rain">Rain (0: No, 1: Yes)</label>
+          <select id="rain" name="rain" required>
+            <option value="" disabled selected>Select Rain</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="sun">Sun (0: No, 1: Yes)</label>
+          <select id="sun" name="sun" required>
+            <option value="" disabled selected>Select Sun</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="E10">E10 (0: No, 1: Yes)</label>
+          <select id="E10" name="E10" required>
+            <option value="" disabled selected>Select E10</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="SP98">SP98 (0: No, 1: Yes)</label>
+          <select id="SP98" name="SP98" required>
+            <option value="" disabled selected>Select SP98</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+
+        <input type="submit" value="Predict" />
+      </form>
+    </main>
+  </body>
+</html>
